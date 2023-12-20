@@ -36,6 +36,13 @@
             
                 <button id="saveToFileButton" onclick="saveEventsToFile()">Save to File</button>
                 <script>
+                    // Function to get the relative path based on the current URL
+                    function getRelativePath() {
+                        var pathArray = window.location.pathname.split('/');
+                        pathArray.pop(); // Remove the last element (current HTML file)
+                        return pathArray.join('/') + '/';
+                    }
+                
                     function addItem() {
                         var newItemName = document.getElementById("newEventName").value;
                         if (newItemName.trim() !== "") {
@@ -105,8 +112,7 @@
                         });
                 
                         // Update the debug label with the file path
-                        var absolutePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-                        document.getElementById("debugLabel").innerText = "File Path: " + absolutePath + selectedFolder + '/' + selectedFolder + '_events.json';
+                        document.getElementById("debugLabel").innerText = "File Path: " + getRelativePath() + selectedFolder + '/' + selectedFolder + '_events.json';
                     }
                 
                     function loadFolders() {
@@ -142,6 +148,7 @@
                     // Load folders when the extension is loaded
                     loadFolders();
                 </script>
+                
                 
             </div>
             
