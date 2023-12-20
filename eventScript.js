@@ -4,12 +4,10 @@ import fs from "fs"
 function initSubject(){
     var filePaths = getEventFiles();
     filePaths.forEach(filePath => {
-        fs.readFile(filePath,(err,data)=>{
-            if (err){
-                return console.log(err);
-            }
-            console.log(data)
-        })
+        const fileNameWithoutExtension = filePath.split('\\').pop().split('.').slice(0, -1).join('.');
+        var el = document.createElement("label")
+        el.innerText=fileNameWithoutExtension;
+        document.getElementById("eventFolders").appendChild(el)
     });
 }
 
