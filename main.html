@@ -14,94 +14,129 @@
                 <label for="ai_events_setting">AI Events</label>
             </div>
             <div class="example-extension_block flex-container">
+                <label for="eventFolders">Select Event Folder:</label>
+                <select id="eventFolders" name="folders" onchange="loadEventsForFolder()">
+                </select>
+                
+                <hr class="sysHR" />
+            
+                <label for="eventItems">All Events:</label>
                 <select id="eventItems" name="items">
                 </select>
-
-                <input type="text" id="newEventItems" placeholder="Enter a new event">
+            
+                <hr class="sysHR" />
+            
+                <label for="newEventName">Enter Event Name:</label>
+                <input type="text" id="newEventName" placeholder="Enter a new event name">
+            
                 <button id="newEventItemsButton" onclick="addItem()">Add Event</button>
-                <input id="delete_event" type="checkbox" onclick="deleteItem()" />
-                <label for="delete_event">Delete Event</label>
-                <script>
-                    function addItem() {
-                        var newItem = document.getElementById("newEventItems").value;
-                        if (newItem.trim() !== "") {
-                            var select = document.getElementById("eventItems");
-                            var option = document.createElement("option");
-                            option.value = newItem;  // Preserve case and spaces
-                            option.text = newItem;
-                            select.add(option);
-                            document.getElementById("newEventItems").value = "";
-                
-                            // Save the added item to local storage
-                            saveItem(newItem);
-                        }
-                    }
-                
-                    function saveItem(item) {
-                        var savedItems = JSON.parse(localStorage.getItem("savedItems")) || [];
-                        savedItems.push(item);
-                        localStorage.setItem("savedItems", JSON.stringify(savedItems));
-                    }
-                
-                    function deleteItem() {
-                        var select = document.getElementById("eventItems");
-                        var selectedIndex = select.selectedIndex;
-                
-                        if (selectedIndex !== -1) {
-                            var deletedItem = select.options[selectedIndex].value;
-                
-                            // Remove the selected item from the dropdown
-                            select.remove(selectedIndex);
-                
-                            // Remove the selected item from the saved items in local storage
-                            removeItemFromStorage(deletedItem);
-                        }
-                    }
-                
-                    function removeItemFromStorage(item) {
-                        var savedItems = JSON.parse(localStorage.getItem("savedItems")) || [];
-                        var updatedItems = savedItems.filter(function (savedItem) {
-                            return savedItem !== item;
-                        });
-                        localStorage.setItem("savedItems", JSON.stringify(updatedItems));
-                    }
-                
-                    function getSavedItems() {
-                        // Retrieve saved items from local storage
-                        return JSON.parse(localStorage.getItem("savedItems")) || [];
-                    }
-                
-                    function saveItemsToFile() {
-                        var savedItems = getSavedItems();
-                        
-                        // Create a Blob containing the saved items as JSON
-                        var blob = new Blob([JSON.stringify(savedItems)], { type: 'application/json' });
-                
-                        // Create a download link and trigger the download
-                        var a = document.createElement('a');
-                        a.href = URL.createObjectURL(blob);
-                        a.download = 'savedItems.json';
-                        a.click();
-                    }
-                
-                    function loadSettings() {
-                        // Load saved items from local storage
-                        var savedItems = getSavedItems();
-                
-                        // Populate the dropdown with saved items
-                        var select = document.getElementById("eventItems");
-                        savedItems.forEach(function (item) {
-                            var option = document.createElement("option");
-                            option.value = item;
-                            option.text = item;
-                            select.add(option);
-                        });
-                    }
-                
-                    // Call loadSettings when the extension is loaded
-                    loadSettings();
-                </script>
+                <button id="deleteItemButton" onclick="deleteItem()">Delete Event</button>
+            
+                <button id="saveToFileButton" onclick="saveEventsToFile()">Save to File</button>
             </div>
+            
+            <script>
+                function addItem() {
+                    var newItemName = document.getElementById("newEventName").value;
+                    if (newItemName.trim() !== "") {
+                        var select = document.getElementById("eventItems");
+                        var option = document.createElement("option");
+                        option.value = newItemName;  // Preserve case and spaces
+                        option.text = newItemName;
+                        select.add(option);
+                        document.getElementById("newEventName").value = "";
+            
+                        // Save the added item to local storage
+                        saveEvent(newItemName);
+                    }
+                }
+            
+                function saveEvent(eventName) {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                    savedEvents.push(eventName);
+                    localStorage.setItem(selectedFolder, JSON.stringify(savedEvents));
+                }
+            
+                function deleteItem() {
+                    var select = document.getElementById("eventItems");
+                    var selectedIndex = select.selectedIndex;
+            
+                    if (selectedIndex !== -1) {
+                        var deletedItem = select.options[selectedIndex].value;
+            
+                        // Remove the selected item from the dropdown
+                        select.remove(selectedIndex);
+            
+                        // Remove the selected item from the saved events in local storage
+                        removeEventFromStorage(deletedItem);
+                    }
+                }
+            
+                function removeEventFromStorage(event) {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                    var updatedEvents = savedEvents.filter(function (savedEvent) {
+                        return savedEvent !== event;
+                    });
+                    localStorage.setItem(selectedFolder, JSON.stringify(updatedEvents));
+                }
+            
+                function loadEventsForFolder() {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+            
+                    // Clear the existing options in the eventItems dropdown
+                    var eventItemsSelect = document.getElementById("eventItems");
+                    eventItemsSelect.innerHTML = "";
+            
+                    // Populate the eventItems dropdown with events from the selected folder
+                    savedEvents.forEach(function (event) {
+                        var option = document.createElement("option");
+                        option.value = event;
+                        option.text = event;
+                        eventItemsSelect.add(option);
+                    });
+                }
+            
+                function loadFolders() {
+                    // Get all folders from local storage
+                    var folders = Object.keys(localStorage);
+            
+                    // Clear the existing options in the eventFolders dropdown
+                    var eventFoldersSelect = document.getElementById("eventFolders");
+                    eventFoldersSelect.innerHTML = "";
+            
+                    // Populate the eventFolders dropdown with folder names
+                    folders.forEach(function (folder) {
+                        var option = document.createElement("option");
+                        option.value = folder;
+                        option.text = folder;
+                        eventFoldersSelect.add(option);
+                    });
+            
+                    // Load events for the selected folder
+                    loadEventsForFolder();
+                }
+            
+                function saveEventsToFile() {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                    
+                    // Create a Blob containing the saved events as JSON
+                    var blob = new Blob([JSON.stringify(savedEvents)], { type: 'application/json' });
+            
+                    // Create a download link and trigger the download
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = selectedFolder + '_events.json';
+                    a.click();
+                }
+            
+                // Load folders when the extension is loaded
+                loadFolders();
+            </script>
+            
 
             <hr class="sysHR" />
         </div>
