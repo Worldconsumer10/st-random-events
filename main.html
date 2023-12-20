@@ -19,20 +19,21 @@
 
                 <input type="text" id="newEventItems" placeholder="Enter a new event">
                 <button id="newEventItemsButton" onclick="addItem()">Add Event</button>
-
+                <input id="delete_event" type="checkbox" onclick="deleteItem()" />
+                <label for="delete_event">Delete Event</label>
                 <script>
                     function addItem() {
                         var newItem = document.getElementById("newEventItems").value;
                         if (newItem.trim() !== "") {
                             var select = document.getElementById("eventItems");
                             var option = document.createElement("option");
-                            option.value = newItem.toLowerCase().replace(/\s+/g, '');
+                            option.value = newItem;  // Preserve case and spaces
                             option.text = newItem;
                             select.add(option);
                             document.getElementById("newEventItems").value = "";
                 
                             // Save the added item to local storage
-                            saveItem(option.value);
+                            saveItem(newItem);
                         }
                     }
                 
@@ -40,6 +41,29 @@
                         var savedItems = JSON.parse(localStorage.getItem("savedItems")) || [];
                         savedItems.push(item);
                         localStorage.setItem("savedItems", JSON.stringify(savedItems));
+                    }
+                
+                    function deleteItem() {
+                        var select = document.getElementById("eventItems");
+                        var selectedIndex = select.selectedIndex;
+                
+                        if (selectedIndex !== -1) {
+                            var deletedItem = select.options[selectedIndex].value;
+                
+                            // Remove the selected item from the dropdown
+                            select.remove(selectedIndex);
+                
+                            // Remove the selected item from the saved items in local storage
+                            removeItemFromStorage(deletedItem);
+                        }
+                    }
+                
+                    function removeItemFromStorage(item) {
+                        var savedItems = JSON.parse(localStorage.getItem("savedItems")) || [];
+                        var updatedItems = savedItems.filter(function (savedItem) {
+                            return savedItem !== item;
+                        });
+                        localStorage.setItem("savedItems", JSON.stringify(updatedItems));
                     }
                 
                     function getSavedItems() {
