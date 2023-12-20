@@ -14,138 +14,114 @@
                 <label for="ai_events_setting">AI Events</label>
             </div>
 
-            <div class="example-extension_block flex-container">
-                <label for="eventFolders">Select Event Folder:</label>
-                <select id="eventFolders" name="folders" onchange="loadEventsForFolder()">
-                </select>
-            
-                <hr class="sysHR" />
-            
-                <label for="eventItems">All Events:</label>
-                <div id="debugLabel"></div>
-                <select id="eventItems" name="items">
-                </select>
-            
-                <hr class="sysHR" />
-            
-                <label for="newEventName">Enter Event Name:</label>
-                <input type="text" id="newEventName" placeholder="Enter a new event name">
-            
-                <button id="newEventItemsButton" onclick="addItem()">Add Event</button>
-                <button id="deleteItemButton" onclick="deleteItem()">Delete Event</button>
-            
-                <button id="saveToFileButton" onclick="saveEventsToFile()">Save to File</button>
-            
-                <script>
-                    function addItem() {
-                        var newItemName = document.getElementById("newEventName").value;
-                        if (newItemName.trim() !== "") {
-                            var select = document.getElementById("eventItems");
-                            var option = document.createElement("option");
-                            option.value = newItemName;  // Preserve case and spaces
-                            option.text = newItemName;
-                            select.add(option);
-                            document.getElementById("newEventName").value = "";
-            
-                            // Save the added item to local storage
-                            saveEvent(newItemName);
-                        }
-                    }
-            
-                    function saveEvent(eventName) {
-                        var selectedFolder = document.getElementById("eventFolders").value;
-                        var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
-                        savedEvents.push(eventName);
-                        localStorage.setItem(selectedFolder, JSON.stringify(savedEvents));
-            
-                        // Save the events to the corresponding file
-                        saveEventsToFile(selectedFolder, savedEvents);
-                    }
-            
-                    function deleteItem() {
+            <script>
+                function addItem() {
+                    var newItemName = document.getElementById("newEventName").value;
+                    if (newItemName.trim() !== "") {
                         var select = document.getElementById("eventItems");
-                        var selectedIndex = select.selectedIndex;
+                        var option = document.createElement("option");
+                        option.value = newItemName;  // Preserve case and spaces
+                        option.text = newItemName;
+                        select.add(option);
+                        document.getElementById("newEventName").value = "";
             
-                        if (selectedIndex !== -1) {
-                            var deletedItem = select.options[selectedIndex].value;
-            
-                            // Remove the selected item from the dropdown
-                            select.remove(selectedIndex);
-            
-                            // Remove the selected item from the saved events in local storage
-                            removeEventFromStorage(deletedItem);
-                        }
+                        // Save the added item to local storage
+                        saveEvent(newItemName);
                     }
+                }
             
-                    function removeEventFromStorage(event) {
-                        var selectedFolder = document.getElementById("eventFolders").value;
-                        var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
-                        var updatedEvents = savedEvents.filter(function (savedEvent) {
-                            return savedEvent !== event;
-                        });
-                        localStorage.setItem(selectedFolder, JSON.stringify(updatedEvents));
+                function saveEvent(eventName) {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                    savedEvents.push(eventName);
+                    localStorage.setItem(selectedFolder, JSON.stringify(savedEvents));
             
-                        // Save the updated events to the corresponding file
-                        saveEventsToFile(selectedFolder, updatedEvents);
+                    // Save the events to the corresponding file
+                    saveEventsToFile(selectedFolder, savedEvents);
+                }
+            
+                function deleteItem() {
+                    var select = document.getElementById("eventItems");
+                    var selectedIndex = select.selectedIndex;
+            
+                    if (selectedIndex !== -1) {
+                        var deletedItem = select.options[selectedIndex].value;
+            
+                        // Remove the selected item from the dropdown
+                        select.remove(selectedIndex);
+            
+                        // Remove the selected item from the saved events in local storage
+                        removeEventFromStorage(deletedItem);
                     }
+                }
             
-                    function loadEventsForFolder() {
-                        var selectedFolder = document.getElementById("eventFolders").value;
-                        var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                function removeEventFromStorage(event) {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                    var updatedEvents = savedEvents.filter(function (savedEvent) {
+                        return savedEvent !== event;
+                    });
+                    localStorage.setItem(selectedFolder, JSON.stringify(updatedEvents));
             
-                        // Clear the existing options in the eventItems dropdown
-                        var eventItemsSelect = document.getElementById("eventItems");
-                        eventItemsSelect.innerHTML = "";
+                    // Save the updated events to the corresponding file
+                    saveEventsToFile(selectedFolder, updatedEvents);
+                }
             
-                        // Populate the eventItems dropdown with events from the selected folder
-                        savedEvents.forEach(function (event) {
-                            var option = document.createElement("option");
-                            option.value = event;
-                            option.text = event;
-                            eventItemsSelect.add(option);
-                        });
+                function loadEventsForFolder() {
+                    var selectedFolder = document.getElementById("eventFolders").value;
+                    var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
             
-                        // Update the debug label with the file path
-                        document.getElementById("debugLabel").innerText = "File Path: " + selectedFolder + '/' + selectedFolder + '_events.json';
-                    }
+                    // Clear the existing options in the eventItems dropdown
+                    var eventItemsSelect = document.getElementById("eventItems");
+                    eventItemsSelect.innerHTML = "";
             
-                    function loadFolders() {
-                        // Get all folders from local storage
-                        var folders = Object.keys(localStorage);
+                    // Populate the eventItems dropdown with events from the selected folder
+                    savedEvents.forEach(function (event) {
+                        var option = document.createElement("option");
+                        option.value = event;
+                        option.text = event;
+                        eventItemsSelect.add(option);
+                    });
             
-                        // Clear the existing options in the eventFolders dropdown
-                        var eventFoldersSelect = document.getElementById("eventFolders");
-                        eventFoldersSelect.innerHTML = "";
+                    // Update the debug label with the file path
+                    var absolutePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+                    document.getElementById("debugLabel").innerText = "File Path: " + absolutePath + selectedFolder + '/' + selectedFolder + '_events.json';
+                }
             
-                        // Populate the eventFolders dropdown with folder names
-                        folders.forEach(function (folder) {
-                            var option = document.createElement("option");
-                            option.value = folder;
-                            option.text = folder;
-                            eventFoldersSelect.add(option);
-                        });
+                function loadFolders() {
+                    // Get all folders from local storage
+                    var folders = Object.keys(localStorage);
             
-                        // Load events for the selected folder
-                        loadEventsForFolder();
-                    }
+                    // Clear the existing options in the eventFolders dropdown
+                    var eventFoldersSelect = document.getElementById("eventFolders");
+                    eventFoldersSelect.innerHTML = "";
             
-                    function saveEventsToFile() {
-                        var selectedFolder = document.getElementById("eventFolders").value;
-                        var savedEvents = JSON.parse(localStorage.getItem(selectedFolder)) || [];
+                    // Populate the eventFolders dropdown with folder names
+                    folders.forEach(function (folder) {
+                        var option = document.createElement("option");
+                        option.value = folder;
+                        option.text = folder;
+                        eventFoldersSelect.add(option);
+                    });
             
-                        // Save the events to the corresponding file
-                        var filePath = selectedFolder + '/' + selectedFolder + '_events.json';
-                        var blob = new Blob([JSON.stringify(savedEvents)], { type: 'application/json' });
-                        var a = document.createElement('a');
-                        a.href = URL.createObjectURL(blob);
-                        a.download = filePath;
-                        a.click();
-                    }
+                    // Load events for the selected folder
+                    loadEventsForFolder();
+                }
             
-                    // Load folders when the extension is loaded
-                    loadFolders();
-                </script>
-            </div>
+                function saveEventsToFile(folder, events) {
+                    // Save the events to the corresponding file
+                    var filePath = folder + '/' + folder + '_events.json';
+                    var blob = new Blob([JSON.stringify(events)], { type: 'application/json' });
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = filePath;
+                    a.click();
+                }
+            
+                // Load folders when the extension is loaded
+                loadFolders();
+            </script>
+            
             
 
             <hr class="sysHR" />
