@@ -12,6 +12,7 @@ const extensionName = "st-random-events";
 const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
 const extensionSettings = extension_settings[extensionName];
 const defaultSettings = {};
+var enabled = true;
 
 
  
@@ -23,8 +24,10 @@ async function loadSettings() {
     Object.assign(extension_settings[extensionName], defaultSettings);
   }
 
-  // Updating settings in the UI
-  $("#example_setting").prop("checked", extension_settings[extensionName].example_setting).trigger("input");
+  $("#disabled_setting").on("click",()=>{
+    enabled=!enabled;
+  })
+
 }
 
 
