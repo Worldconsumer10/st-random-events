@@ -6,8 +6,33 @@
         </div>
         <div class="inline-drawer-content">
             <div class="example-extension_block flex-container">
-                <input id="enabled_setting" type="checkbox" value="true" />
-                <label for="enabled_setting">Enabled</label>
+                <input id="disabled_setting" type="checkbox" />
+                <label for="disabled_setting">Disabled</label>
+            </div>
+            <div class="example-extension_block flex-container">
+                <input id="ai_events_setting" type="checkbox" />
+                <label for="ai_events_setting">AI Events</label>
+            </div>
+            <div class="example-extension_block flex-container">
+                <select id="eventItems" name="items">
+                </select>
+
+                <input type="text" id="newEventItems" placeholder="Enter a new event">
+                <button onclick="addItem()">Add Event</button>
+
+                <script>
+                    function addItem() {
+                        var newItem = document.getElementById("newEventItems").value;
+                        if (newItem.trim() !== "") {
+                            var select = document.getElementById("eventItems");
+                            var option = document.createElement("option");
+                            option.value = newItem.toLowerCase().replace(/\s+/g, '');
+                            option.text = newItem;
+                            select.add(option);
+                            document.getElementById("newEventItems").value = "";
+                        }
+                    }
+                </script>
             </div>
 
             <hr class="sysHR" />
