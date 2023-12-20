@@ -18,7 +18,7 @@
                 </select>
 
                 <input type="text" id="newEventItems" placeholder="Enter a new event">
-                <button onclick="addItem()">Add Event</button>
+                <button id="newEventItemsButton" onclick="addItem()">Add Event</button>
 
                 <script>
                     function addItem() {
@@ -30,8 +30,52 @@
                             option.text = newItem;
                             select.add(option);
                             document.getElementById("newEventItems").value = "";
+                
+                            // Save the added item to local storage
+                            saveItem(option.value);
                         }
                     }
+                
+                    function saveItem(item) {
+                        var savedItems = JSON.parse(localStorage.getItem("savedItems")) || [];
+                        savedItems.push(item);
+                        localStorage.setItem("savedItems", JSON.stringify(savedItems));
+                    }
+                
+                    function getSavedItems() {
+                        // Retrieve saved items from local storage
+                        return JSON.parse(localStorage.getItem("savedItems")) || [];
+                    }
+                
+                    function saveItemsToFile() {
+                        var savedItems = getSavedItems();
+                        
+                        // Create a Blob containing the saved items as JSON
+                        var blob = new Blob([JSON.stringify(savedItems)], { type: 'application/json' });
+                
+                        // Create a download link and trigger the download
+                        var a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'savedItems.json';
+                        a.click();
+                    }
+                
+                    function loadSettings() {
+                        // Load saved items from local storage
+                        var savedItems = getSavedItems();
+                
+                        // Populate the dropdown with saved items
+                        var select = document.getElementById("eventItems");
+                        savedItems.forEach(function (item) {
+                            var option = document.createElement("option");
+                            option.value = item;
+                            option.text = item;
+                            select.add(option);
+                        });
+                    }
+                
+                    // Call loadSettings when the extension is loaded
+                    loadSettings();
                 </script>
             </div>
 
