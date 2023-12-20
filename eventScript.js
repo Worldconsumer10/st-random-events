@@ -7,6 +7,7 @@ function initSubject(){
         var el = document.createElement("label")
         el.innerText=fileNameWithoutExtension;
         document.getElementById("eventFolders").appendChild(el)
+        alert(el)
     });
 }
 
