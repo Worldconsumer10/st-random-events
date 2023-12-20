@@ -1,5 +1,4 @@
 import {getEventFiles} from "./fileScript"
-import fs from "fs"
 
 function initSubject(){
     var filePaths = getEventFiles();
